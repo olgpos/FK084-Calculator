@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Kraniālo mērījumu kalkulators</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        padding: 20px;
+        background: #ffffff;
+        font-family: Arial, Helvetica, sans-serif;
+        color: #2b2b2b;
+        line-height: 1.5;
+    }
+
+    .calculator {
+        max-width: 920px;
+        margin: 0 auto;
+    }
+
+    h2 {
+        margin: 0 0 8px 0;
+        font-size: 24px;
+        color: #222;
+    }
+
+    h3 {
+        margin-top: 0;
+        font-size: 18px;
+    }
+
+    .intro {
+        color: #555;
+        margin-bottom: 24px;
+    }
+
+    .section {
+        border: 1px solid #dddddd;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        background: #ffffff;
+    }
+
+    .section-title {
+        border-left: 4px solid #7b1f35;
+        padding-left: 10px;
+        margin-bottom: 18px;
+    }
+
+    .measurement-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(130px, 1fr));
+        gap: 14px;
+    }
+
+    .model-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(130px, 1fr));
+        gap: 14px;
+    }
+
+    label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .description {
+        display: block;
+        color: #777;
+        font-size: 12px;
+        font-weight: normal;
+        margin-top: 2px;
+    }
+
+    .input-wrapper {
+        position: relative;
+    }
+
+    input {
+        width: 100%;
+        min-height: 44px;
+        padding: 9px 42px 9px 10px;
+        border: 1px solid #bfc3c7;
+        border-radius: 5px;
+        font-size: 16px;
+        background: #fff;
+    }
+
+    input:focus {
+        outline: none;
+        border-color: #7b1f35;
+        box-shadow: 0 0 0 2px rgba(123,31,53,0.12);
+    }
+
+    .unit {
+        position: absolute;
+        right: 10px;
+        top: 11px;
+        color: #777;
+        font-size: 14px;
+        pointer-events: none;
+    }
+
+    .info-box {
+        margin-top: 15px;
+        padding: 12px 14px;
+        background: #f5f6f7;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+
+    .results {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(220px, 1fr));
+        gap: 12px;
+    }
+
+    .result {
+        border: 1px solid #dddddd;
+        border-radius: 6px;
+        padding: 13px 15px;
+        background: #fafafa;
+    }
+
+    .result-name {
+        font-size: 13px;
+        color: #666;
+        margin-bottom: 3px;
+    }
+
+    .result-value {
+        font-size: 22px;
+        font-weight: 600;
+        color: #222;
+    }
+
+    .result-small {
+        font-size: 13px;
+        color: #777;
+        margin-top: 3px;
+    }
+
+    .difference {
+        border-left: 4px solid #7b1f35;
+    }
+
+    details {
+        margin-top: 20px;
+        border-top: 1px solid #ddd;
+        padding-top: 15px;
+    }
+
+    summary {
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+    .formula {
+        font-family: "Courier New", monospace;
+        background: #f6f6f6;
+        padding: 8px 10px;
+        border-radius: 4px;
+        margin: 8px 0;
+        overflow-wrap: anywhere;
+    }
+
+    button {
+        padding: 10px 18px;
+        border: 1px solid #999;
+        border-radius: 5px;
+        background: #ffffff;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    button:hover {
+        background: #f4f4f4;
+    }
+
+    .note {
+        font-size: 13px;
+        color: #666;
+        margin-top: 16px;
+    }
+
+    @media (max-width: 720px) {
+        body {
+            padding: 12px;
+        }
+
+        .measurement-grid,
+        .model-grid,
+        .results {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="calculator">
+
+    <h2>Kraniālo mērījumu kalkulators</h2>
+
+    <p class="intro">
+        Ievadiet pacienta manuālos kontroles mērījumus un no 3D modeļa
+        iegūtās vidējās mērījumu vērtības. Rezultāti tiek aprēķināti automātiski.
+    </p>
+
+
+    <!-- MANUAL CIRCUMFERENCE -->
+    <div class="section">
+
+        <div class="section-title">
+            <h3>1. Manuālais galvas apkārtmērs</h3>
+        </div>
+
+        <p>
+            Galvas apkārtmēru izmēriet <strong>trīs reizes</strong>.
+            Ievadiet visus trīs neatkarīgi iegūtos mērījumus.
+        </p>
+
+        <div class="measurement-grid">
+
+            <div>
+                <label for="c1">1. mērījums</label>
+                <div class="input-wrapper">
+                    <input id="c1" type="text" inputmode="decimal" placeholder="piem., 441">
+                    <span class="unit">mm</span>
+                </div>
+            </div>
+
+            <div>
+                <label for="c2">2. mērījums</label>
+                <div class="input-wrapper">
+                    <input id="c2" type="text" inputmode="decimal" placeholder="piem., 440">
+                    <span class="unit">mm</span>
+                </div>
+            </div>
+
+            <div>
+                <label for="c3">3. mērījums</label>
+                <div class="input-wrapper">
+                    <input id="c3" type="text" inputmode="decimal" placeholder="piem., 442">
+                    <span class="unit">mm</span>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="info-box">
+            Vidējais manuālais galvas apkārtmērs:
+            <strong id="meanCirc">—</strong>
+            <br>
+            Mērījumu diapazons (max − min):
+            <strong id="circRange">—</strong>
+        </div>
+
+    </div>
+
+
+    <!-- 3D MODEL -->
+    <div class="section">
+
+        <div class="section-title">
+            <h3>2. Mērījumi no 3D modeļa</h3>
+        </div>
+
+        <p>
+            Katru parametru <strong>AP, ML, D1 un D2 izmēriet trīs reizes</strong>.
+            Aprēķiniet katra parametra vidējo vērtību un ievadiet to zemāk.
+        </p>
+
+        <div class="model-grid">
+
+            <div>
+                <label for="ap">
+                    AP
+                    <span class="description">vidējā vērtība</span>
+                </label>
+
+                <div class="input-wrapper">
+                    <input id="ap" type="text" inputmode="decimal" placeholder="piem., 148.3">
+                    <span class="unit">mm</span>
+                </div>
+            </div>
+
+            <div>
+                <label for="ml">
+                    ML
+                    <span class="description">vidējā vērtība</span>
+                </label>
+
+                <div class="input-wrapper">
+                    <input id="ml" type="text" inputmode="decimal" placeholder="piem., 132.4">
+                    <span class="unit">mm</span>
+                </div>
+            </div>
+
+            <div>
+                <label for="d1">
+                    D1
+                    <span class="description">vidējā diagonāle</span>
+                </label>
+
+                <div class="input-wrapper">
+                    <input id="d1" type="text" inputmode="decimal" placeholder="piem., 145.1">
+                    <span class="unit">mm</span>
+                </div>
+            </div>
+
+            <div>
+                <label for="d2">
+                    D2
+                    <span class="description">vidējā diagonāle</span>
+                </label>
+
+                <div class="input-wrapper">
+                    <input id="d2" type="text" inputmode="decimal" placeholder="piem., 134.2">
+                    <span class="unit">mm</span>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- RESULTS -->
+    <div class="section">
+
+        <div class="section-title">
+            <h3>3. Aprēķinu rezultāti</h3>
+        </div>
+
+        <div class="results">
+
+            <div class="result">
+                <div class="result-name">Vidējais manuālais apkārtmērs</div>
+                <div class="result-value" id="resultMeanCirc">—</div>
+            </div>
+
+            <div class="result">
+                <div class="result-name">Aptuvenais apkārtmērs pēc AP un ML</div>
+                <div class="result-value" id="ellipseCirc">—</div>
+                <div class="result-small">Elipses ģeometriskā aproksimācija</div>
+            </div>
+
+            <div class="result difference">
+                <div class="result-name">
+                    Starpība: aprēķinātais − manuālais apkārtmērs
+                </div>
+                <div class="result-value" id="circDifference">—</div>
+            </div>
+
+            <div class="result">
+                <div class="result-name">Cranial Ratio (CR)</div>
+                <div class="result-value" id="cr">—</div>
+                <div class="result-small">ML / AP × 100</div>
+            </div>
+
+            <div class="result">
+                <div class="result-name">Cranial Vault Asymmetry (CVA)</div>
+                <div class="result-value" id="cva">—</div>
+                <div class="result-small">Absolūtā starpība starp D1 un D2</div>
+            </div>
+
+            <div class="result">
+                <div class="result-name">Cranial Vault Asymmetry Index (CVAI)</div>
+                <div class="result-value" id="cvai">—</div>
+                <div class="result-small">
+                    Aprēķinā izmantota īsākā diagonāle
+                </div>
+            </div>
+
+        </div>
+
+        <details>
+            <summary>Parādīt izmantotās formulas</summary>
+
+            <p><strong>Vidējais galvas apkārtmērs</strong></p>
+            <div class="formula">
+                C̄ = (C1 + C2 + C3) / 3
+            </div>
+
+            <p><strong>Cranial Ratio</strong></p>
+            <div class="formula">
+                CR = (ML / AP) × 100 %
+            </div>
+
+            <p><strong>Cranial Vault Asymmetry</strong></p>
+            <div class="formula">
+                CVA = |D1 − D2|
+            </div>
+
+            <p><strong>Cranial Vault Asymmetry Index</strong></p>
+            <div class="formula">
+                CVAI = |D1 − D2| / min(D1, D2) × 100 %
+            </div>
+
+            <p><strong>Aptuvenais elipses apkārtmērs</strong></p>
+            <div class="formula">
+                C ≈ π [3(a+b) − √((3a+b)(a+3b))]
+            </div>
+
+            <div class="formula">
+                a = AP / 2 &nbsp;&nbsp;&nbsp; b = ML / 2
+            </div>
+
+        </details>
+
+        <p class="note">
+            Aptuvenais apkārtmērs, kas aprēķināts no AP un ML,
+            ir ģeometriska aproksimācija un neaizstāj tiešu galvas
+            apkārtmēra mērījumu.
+        </p>
+
+        <button type="button" id="resetButton">
+            Notīrīt ievadītos datus
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+(function () {
+
+    const ids = ["c1", "c2", "c3", "ap", "ml", "d1", "d2"];
+
+    function getNumber(id) {
+        const raw = document.getElementById(id).value
+            .trim()
+            .replace(",", ".");
+
+        if (raw === "") return null;
+
+        const value = Number(raw);
+
+        if (!Number.isFinite(value) || value <= 0) {
+            return null;
+        }
+
+        return value;
+    }
+
+    function format(value, decimals = 1, unit = "") {
+        if (!Number.isFinite(value)) return "—";
+
+        return value.toFixed(decimals).replace(".", ",") + unit;
+    }
+
+    function update() {
+
+        const c1 = getNumber("c1");
+        const c2 = getNumber("c2");
+        const c3 = getNumber("c3");
+
+        const ap = getNumber("ap");
+        const ml = getNumber("ml");
+        const d1 = getNumber("d1");
+        const d2 = getNumber("d2");
+
+
+        /* Manual circumference */
+
+        let meanCirc = null;
+
+        if (c1 !== null && c2 !== null && c3 !== null) {
+
+            meanCirc = (c1 + c2 + c3) / 3;
+
+            const range =
+                Math.max(c1, c2, c3) -
+                Math.min(c1, c2, c3);
+
+            document.getElementById("meanCirc").textContent =
+                format(meanCirc, 1, " mm");
+
+            document.getElementById("circRange").textContent =
+                format(range, 1, " mm");
+
+            document.getElementById("resultMeanCirc").textContent =
+                format(meanCirc, 1, " mm");
+
+        } else {
+
+            document.getElementById("meanCirc").textContent = "—";
+            document.getElementById("circRange").textContent = "—";
+            document.getElementById("resultMeanCirc").textContent = "—";
+        }
+
+
+        /* AP / ML calculations */
+
+        let calculatedCirc = null;
+
+        if (ap !== null && ml !== null) {
+
+            const a = ap / 2;
+            const b = ml / 2;
+
+            calculatedCirc =
+                Math.PI *
+                (
+                    3 * (a + b) -
+                    Math.sqrt(
+                        (3 * a + b) *
+                        (a + 3 * b)
+                    )
+                );
+
+            const cranialRatio = (ml / ap) * 100;
+
+            document.getElementById("ellipseCirc").textContent =
+                format(calculatedCirc, 1, " mm");
+
+            document.getElementById("cr").textContent =
+                format(cranialRatio, 1, " %");
+
+        } else {
+
+            document.getElementById("ellipseCirc").textContent = "—";
+            document.getElementById("cr").textContent = "—";
+        }
+
+
+        /* Circumference difference */
+
+        if (meanCirc !== null && calculatedCirc !== null) {
+
+            const difference = calculatedCirc - meanCirc;
+
+            const sign = difference > 0 ? "+" : "";
+
+            document.getElementById("circDifference").textContent =
+                sign +
+                difference.toFixed(1).replace(".", ",") +
+                " mm";
+
+        } else {
+
+            document.getElementById("circDifference").textContent = "—";
+        }
+
+
+        /* Diagonal calculations */
+
+        if (d1 !== null && d2 !== null) {
+
+            const cva = Math.abs(d1 - d2);
+
+            const shortestDiagonal = Math.min(d1, d2);
+
+            const cvai =
+                (cva / shortestDiagonal) * 100;
+
+            document.getElementById("cva").textContent =
+                format(cva, 1, " mm");
+
+            document.getElementById("cvai").textContent =
+                format(cvai, 2, " %");
+
+        } else {
+
+            document.getElementById("cva").textContent = "—";
+            document.getElementById("cvai").textContent = "—";
+        }
+    }
+
+
+    ids.forEach(function (id) {
+        document.getElementById(id)
+            .addEventListener("input", update);
+    });
+
+
+    document.getElementById("resetButton")
+        .addEventListener("click", function () {
+
+            ids.forEach(function (id) {
+                document.getElementById(id).value = "";
+            });
+
+            update();
+        });
+
+
+    update();
+
+})();
+</script>
+
+</body>
+</html>
